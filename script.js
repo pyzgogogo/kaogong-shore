@@ -449,7 +449,7 @@ function $(sel) { return document.querySelector(sel); }
 //  Photo Corner
 // ═══════════════════════════════════════════════════════════════
 (function() {
-  var PHOTO_COUNT = 7;
+  var PHOTO_COUNT = 8;
   var scrollEl = document.getElementById('photo-scroll');
   if (!scrollEl) return;
 
