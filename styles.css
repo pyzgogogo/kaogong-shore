@@ -10,6 +10,29 @@
   --text-muted:  #8eaccd;
   --card-bg:     rgba(26, 58, 92, 0.35);
   --radius:      16px;
+  /* Theme-overridable */
+  --hero-bg:     linear-gradient(180deg, #0a1628 0%, #1a3a5c 70%, #0d2840 100%);
+  --section-bg:  #0d2840;
+}
+
+/* Theme: 黎明微光 (6:00-12:00) */
+.theme-dawn {
+  --bg-deep:     #0f1d2e;
+  --bg-mid:      #1e4a6e;
+  --gold:        #f2c870;
+  --hero-bg:     linear-gradient(180deg, #0f1d2e 0%, #1e4a6e 50%, #1a6280 100%);
+  --section-bg:  #1a3a50;
+}
+
+/* Theme: 金色午后 (12:00-18:00) */
+.theme-noon {
+  --bg-deep:     #1a1a10;
+  --bg-mid:      #3d3a20;
+  --gold:        #e8b840;
+  --gold-soft:   #f0d070;
+  --hero-bg:     linear-gradient(180deg, #1a1a10 0%, #3d3a20 50%, #5a4a20 100%);
+  --section-bg:  #2a2a18;
+  --text-muted:  #b8a888;
 }
 
 html {
@@ -27,6 +50,11 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  animation: page-fade-in 1.2s ease-out;
+}
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .section-label {
@@ -55,7 +83,7 @@ body {
   justify-content: center;
   text-align: center;
   padding: 2rem 1.25rem;
-  background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 70%, #0d2840 100%);
+  background: var(--hero-bg);
   overflow: hidden;
 }
 
@@ -66,6 +94,47 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  transition: transform 0.15s ease-out;
+}
+
+/* Sea waves at hero bottom */
+.sea-waves {
+  position: absolute;
+  bottom: 0;
+  left: -10%;
+  width: 120%;
+  height: 60px;
+  z-index: 0;
+  pointer-events: none;
+}
+.sea-wave {
+  position: absolute;
+  bottom: 0;
+  width: 200%;
+  height: 40px;
+  border-radius: 40% 40% 0 0;
+  opacity: 0.12;
+}
+.sea-wave.w1 {
+  background: rgba(142, 172, 205, 0.3);
+  animation: wave-drift 8s linear infinite;
+  height: 50px;
+}
+.sea-wave.w2 {
+  background: rgba(142, 172, 205, 0.2);
+  animation: wave-drift 6s linear infinite reverse;
+  height: 35px;
+  bottom: 5px;
+}
+.sea-wave.w3 {
+  background: rgba(240, 192, 96, 0.15);
+  animation: wave-drift 10s linear infinite;
+  height: 25px;
+  bottom: 10px;
+}
+@keyframes wave-drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33%); }
 }
 
 /* CSS Lighthouse */
@@ -82,22 +151,27 @@ body {
   50% { transform: translateY(-6px); }
 }
 
+/* Beam scanning rotation */
 .light-beam {
   position: absolute;
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 22px;
+  width: 3px;
+  height: 26px;
   background: var(--gold);
-  border-radius: 50%;
-  box-shadow: 0 0 20px 6px rgba(240, 192, 96, 0.5),
-              0 0 40px 14px rgba(240, 192, 96, 0.2);
-  animation: beam-pulse 2.5s ease-in-out infinite;
+  border-radius: 2px;
+  box-shadow: 0 0 20px 6px rgba(240, 192, 96, 0.55),
+              0 0 40px 14px rgba(240, 192, 96, 0.25);
+  animation: beam-scan 4s ease-in-out infinite;
+  transform-origin: bottom center;
 }
-@keyframes beam-pulse {
-  0%, 100% { opacity: 0.7; transform: translateX(-50%) scaleY(1); }
-  50% { opacity: 1; transform: translateX(-50%) scaleY(1.25); }
+@keyframes beam-scan {
+  0%   { transform: translateX(-50%) rotate(-30deg); opacity: 0.5; }
+  25%  { transform: translateX(-50%) rotate(30deg); opacity: 1; }
+  50%  { transform: translateX(-50%) rotate(30deg); opacity: 1; }
+  75%  { transform: translateX(-50%) rotate(-30deg); opacity: 0.5; }
+  100% { transform: translateX(-50%) rotate(-30deg); opacity: 0.5; }
 }
 
 .light-glow {
@@ -249,11 +323,11 @@ body {
   50% { transform: rotate(45deg) translateY(6px); }
 }
 
-/* ===== Section 2: Countdown ===== */
+/* Journey section backgrounds now use var */
 #countdown {
   padding: 3rem 1.25rem;
   text-align: center;
-  background: linear-gradient(180deg, #0d2840 0%, var(--bg-mid) 50%, #0d2840 100%);
+  background: linear-gradient(180deg, var(--section-bg) 0%, var(--bg-mid) 50%, var(--section-bg) 100%);
 }
 
 .countdown-grid {
@@ -320,7 +394,7 @@ body {
 #quote {
   padding: 2.5rem 1.25rem 3rem;
   text-align: center;
-  background: #0d2840;
+  background: var(--section-bg);
 }
 #daily-quote {
   font-size: 1.05rem;
@@ -352,7 +426,7 @@ body {
 #journey {
   padding: 2.5rem 0.75rem 3.5rem;
   text-align: center;
-  background: #0d2840;
+  background: var(--section-bg);
 }
 
 .timeline-wrapper {
@@ -424,6 +498,178 @@ body {
 .timeline-node.current .node-icon {
   filter: drop-shadow(0 0 6px rgba(240,192,96,0.5));
 }
+
+/* ===== Section 4.5: Daily Check-in ===== */
+#checkin {
+  padding: 2.5rem 1.25rem 3.5rem;
+  text-align: center;
+  background: linear-gradient(180deg, #0d2840 0%, var(--bg-mid) 100%);
+}
+
+.checkin-streak {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+.checkin-streak strong {
+  color: var(--gold);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* Main check-in button */
+.checkin-circle-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.checkin-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 2px solid rgba(240, 192, 96, 0.25);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1;
+  font-family: inherit;
+  color: var(--text);
+}
+.checkin-circle:hover {
+  transform: scale(1.05);
+  border-color: rgba(240, 192, 96, 0.5);
+  box-shadow: 0 0 30px rgba(240, 192, 96, 0.15);
+}
+.checkin-circle:active {
+  transform: scale(0.95);
+}
+.checkin-icon {
+  font-size: 1.6rem;
+}
+.checkin-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* Checked-in state */
+.checkin-circle.checked {
+  border-color: rgba(240, 192, 96, 0.55);
+  box-shadow: 0 0 36px rgba(240, 192, 96, 0.2);
+  background: rgba(240, 192, 96, 0.08);
+}
+.checkin-circle.checked .checkin-icon {
+  filter: drop-shadow(0 0 4px rgba(240, 192, 96, 0.6));
+}
+
+/* Ripple */
+.checkin-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 0;
+}
+.checkin-ripple.active {
+  animation: checkin-ripple 1.2s ease-out forwards;
+}
+@keyframes checkin-ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(240, 192, 96, 0.5);
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 60px rgba(240, 192, 96, 0);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.2);
+  }
+}
+
+/* Feedback text */
+.checkin-feedback {
+  font-size: 0.9rem;
+  color: var(--gold);
+  min-height: 1.4em;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  transition: opacity 0.4s;
+}
+
+/* Heatmap */
+.heatmap-container {
+  margin-top: 0.5rem;
+}
+.heatmap-title {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.heatmap {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.heatmap-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: rgba(142, 172, 205, 0.12);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.heatmap-cell.level-1 {
+  background: rgba(240, 192, 96, 0.25);
+}
+.heatmap-cell.level-2 {
+  background: rgba(240, 192, 96, 0.5);
+}
+.heatmap-cell.level-3 {
+  background: rgba(240, 192, 96, 0.8);
+  box-shadow: 0 0 6px rgba(240, 192, 96, 0.2);
+}
+.heatmap-cell.today-empty {
+  animation: cell-pulse 1.5s ease-in-out infinite;
+  background: rgba(240, 192, 96, 0.15);
+}
+@keyframes cell-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(240, 192, 96, 0); }
+  50% { box-shadow: 0 0 8px rgba(240, 192, 96, 0.3); }
+}
+
+.heatmap-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+.legend-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.legend-cell.empty { background: rgba(142, 172, 205, 0.12); }
+.legend-cell.light { background: rgba(240, 192, 96, 0.35); }
+.legend-cell.full  { background: rgba(240, 192, 96, 0.8); }
 
 /* ===== Section 5: Energy Stars ===== */
 #energy {

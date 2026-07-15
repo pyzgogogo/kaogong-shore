@@ -4,11 +4,10 @@
    ============================================================ */
 
 // ── Configuration (易修改区) ──────────────────────────────────
-const CONFIG = {
+var CONFIG = {
   name: '美丽的张晓彤',
-  examDate: '2026-12-20T08:30:00',  // 省考笔试日期，可修改
+  examDate: '2026-12-20T08:30:00',
 
-  // 每日一句 · 浪潮
   quotes: [
     '每一个优秀的人，都有一段沉默的时光。那段时光是付出了很多努力，却得不到结果的日子，我们把它叫做扎根。',
     '所谓的幸运，不过是努力埋下的伏笔。你刷的每一道题，熬的每一个夜，都不会被辜负。',
@@ -27,7 +26,6 @@ const CONFIG = {
     '你已经很棒了——走到今天这一步，本身就已经赢过了很多人。',
   ],
 
-  // 悄悄话信箱
   messages: [
     '今天也是努力的一天，不论结果如何，你认真的样子就已经很美了。',
     '晓彤，我知道你有时候会很累很焦虑，但请相信你自己的节奏。走得慢没关系，只要在走。',
@@ -41,7 +39,6 @@ const CONFIG = {
     '偷偷告诉你一个秘密：岸上的生活很精彩，我们已经帮你占好位置了。',
   ],
 
-  // 考公关键节点（名字 + 距考试天数偏移）
   milestones: [
     { label: '报名', icon: '📝', offsetDays: -90 },
     { label: '笔试', icon: '✍️', offsetDays: 0 },
@@ -52,26 +49,22 @@ const CONFIG = {
     { label: '上岸', icon: '🌅', offsetDays: 130 },
   ],
 
-  // 能量瓶全部集齐后的隐藏消息
   allStarsMessage: '晓彤你看，连星星都在帮你——你离上岸，又近了一大步。✨',
-
-  // 到达岸边的考试后鼓励
   afterExamMessage: '笔试已经结束了！你已经做到了你能做的一切。接下来，好好休息，静候佳音。🌊',
 };
 
-// ── DOM 引用 ──────────────────────────────────────────────────
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
+function $(sel) { return document.querySelector(sel); }
 
-// ── Particle/Starfield Canvas ──────────────────────────────────
-(function initStarfield() {
-  const canvas = $('#stars-canvas');
+// ═══════════════════════════════════════════════════════════════
+//  Starfield Canvas
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var canvas = $('#stars-canvas');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-
-  let w, h;
-  const stars = [];
-  const STAR_COUNT = 80;
+  var ctx = canvas.getContext('2d');
+  var w, h;
+  var stars = [];
+  var STAR_COUNT = 80;
 
   function resize() {
     w = canvas.width = canvas.offsetWidth;
@@ -80,24 +73,24 @@ const $$ = (sel) => document.querySelectorAll(sel);
   resize();
   window.addEventListener('resize', resize);
 
-  for (let i = 0; i < STAR_COUNT; i++) {
+  for (var i = 0; i < STAR_COUNT; i++) {
     stars.push({
-      x: Math.random() * w,
-      y: Math.random() * h,
+      x: Math.random() * (w || 375),
+      y: Math.random() * (h || 812),
       r: Math.random() * 1.3 + 0.3,
-      twinkleSpeed: Math.random() * 0.02 + 0.005,
-      twinkleOffset: Math.random() * Math.PI * 2,
-      alpha: 0,
+      speed: Math.random() * 0.02 + 0.005,
+      offset: Math.random() * Math.PI * 2,
     });
   }
 
-  function draw(timestamp) {
+  function draw(ts) {
     ctx.clearRect(0, 0, w, h);
-    for (const s of stars) {
-      s.alpha = 0.35 + 0.35 * Math.sin(timestamp * s.twinkleSpeed + s.twinkleOffset);
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      var alpha = 0.35 + 0.35 * Math.sin(ts * s.speed + s.offset);
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(240,192,96,${s.alpha.toFixed(2)})`;
+      ctx.fillStyle = 'rgba(240,192,96,' + alpha.toFixed(2) + ')';
       ctx.fill();
     }
     requestAnimationFrame(draw);
@@ -105,57 +98,51 @@ const $$ = (sel) => document.querySelectorAll(sel);
   requestAnimationFrame(draw);
 })();
 
-// ── Countdown ──────────────────────────────────────────────────
-(function initCountdown() {
-  const exam = new Date(CONFIG.examDate).getTime();
+// ═══════════════════════════════════════════════════════════════
+//  Countdown
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var exam = new Date(CONFIG.examDate).getTime();
 
   function update() {
-    const now = Date.now();
-    const diff = exam - now;
+    var diff = exam - Date.now();
+    var days = Math.floor(diff / 86400000);
+    var hrs = Math.floor((diff / 3600000) % 24);
+    var mins = Math.floor((diff / 60000) % 60);
+    var secs = Math.floor((diff / 1000) % 60);
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const mins = Math.floor((diff / (1000 * 60)) % 60);
-    const secs = Math.floor((diff / 1000) % 60);
-
-    const dayEl = $('#cd-days');
-    const hrEl = $('#cd-hours');
-    const minEl = $('#cd-mins');
-    const secEl = $('#cd-secs');
-    const msgEl = $('#countdown-msg');
-    const section = $('#countdown');
+    var dayEl = $('#cd-days'), hrEl = $('#cd-hours');
+    var minEl = $('#cd-mins'), secEl = $('#cd-secs');
+    var msgEl = $('#countdown-msg'), section = $('#countdown');
 
     if (diff <= 0) {
-      // 已过笔试日
       if (dayEl) dayEl.textContent = '00';
       if (hrEl) hrEl.textContent = '00';
       if (minEl) minEl.textContent = '00';
       if (secEl) secEl.textContent = '00';
       if (msgEl) msgEl.textContent = CONFIG.afterExamMessage;
-      section.classList.remove('urgent');
+      if (section) section.classList.remove('urgent');
       return;
     }
 
     if (dayEl) dayEl.textContent = String(Math.max(0, days)).padStart(2, '0');
-    if (hrEl) hrEl.textContent = String(hours).padStart(2, '0');
+    if (hrEl) hrEl.textContent = String(hrs).padStart(2, '0');
     if (minEl) minEl.textContent = String(mins).padStart(2, '0');
     if (secEl) secEl.textContent = String(secs).padStart(2, '0');
 
-    // Urgency state
-    if (days <= 30 && days > 7) {
-      if (msgEl) msgEl.textContent = '最后冲刺阶段，稳住节奏，你可以的。';
+    if (!section || !msgEl) return;
+
+    if (days <= 7 && days > 0) {
+      msgEl.textContent = '倒计时最后一周！调整心态，准备上岸。';
       section.classList.add('urgent');
-    } else if (days <= 7 && days > 0) {
-      if (msgEl) msgEl.textContent = '倒计时最后一周！调整心态，准备上岸。';
-      section.classList.add('urgent');
-    } else if (days <= 0) {
-      if (msgEl) msgEl.textContent = '今天就是笔试！放平心态，你已经准备好了。';
+    } else if (days <= 30 && days > 7) {
+      msgEl.textContent = '最后冲刺阶段，稳住节奏，你可以的。';
       section.classList.add('urgent');
     } else if (days <= 90) {
-      if (msgEl) msgEl.textContent = '你正在航行中，不要左顾右盼，盯住彼岸。';
+      msgEl.textContent = '你正在航行中，不要左顾右盼，盯住彼岸。';
       section.classList.remove('urgent');
     } else {
-      if (msgEl) msgEl.textContent = '航程刚刚开始，每一步都算数。';
+      msgEl.textContent = '航程刚刚开始，每一步都算数。';
       section.classList.remove('urgent');
     }
   }
@@ -164,238 +151,346 @@ const $$ = (sel) => document.querySelectorAll(sel);
   setInterval(update, 1000);
 })();
 
-// ── Daily Quote ────────────────────────────────────────────────
-(function initQuote() {
-  // 基于日期 seed，保证同一天显示同一句话
-  const today = new Date();
-  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const idx = seed % CONFIG.quotes.length;
-
-  const quoteEl = $('#daily-quote');
-  const attrEl = $('#quote-attribution');
-  if (quoteEl) quoteEl.textContent = CONFIG.quotes[idx];
-  if (attrEl) attrEl.textContent = '—— 来自一个一直在为你加油的人';
+// ═══════════════════════════════════════════════════════════════
+//  Daily Quote
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var today = new Date();
+  var seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  var idx = seed % CONFIG.quotes.length;
+  var el = $('#daily-quote');
+  var attr = $('#quote-attribution');
+  if (el) el.textContent = CONFIG.quotes[idx];
+  if (attr) attr.textContent = '—— 来自一个一直在为你加油的人';
 })();
 
-// ── Journey / Sailing Timeline ─────────────────────────────────
-(function initJourney() {
-  const exam = new Date(CONFIG.examDate);
-  const now = Date.now();
-
-  // Determine which milestone we're at
-  const today = new Date();
-  let currentIdx = 0;
-  for (let i = CONFIG.milestones.length - 1; i >= 0; i--) {
-    const msDate = new Date(exam.getTime() + CONFIG.milestones[i].offsetDays * 24 * 60 * 60 * 1000);
-    if (today >= msDate) {
-      currentIdx = i;
-      break;
-    }
+// ═══════════════════════════════════════════════════════════════
+//  Journey / Sailing Timeline
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var exam = new Date(CONFIG.examDate);
+  var today = new Date();
+  var currentIdx = 0;
+  for (var i = CONFIG.milestones.length - 1; i >= 0; i--) {
+    var msDate = new Date(exam.getTime() + CONFIG.milestones[i].offsetDays * 86400000);
+    if (today >= msDate) { currentIdx = i; break; }
   }
 
-  // Build nodes
-  const nodesEl = $('#timeline-nodes');
+  var nodesEl = $('#timeline-nodes');
   if (!nodesEl) return;
 
-  CONFIG.milestones.forEach((ms, i) => {
-    const div = document.createElement('div');
+  for (var i = 0; i < CONFIG.milestones.length; i++) {
+    var ms = CONFIG.milestones[i];
+    var div = document.createElement('div');
     div.className = 'timeline-node';
     if (i < currentIdx) div.classList.add('passed');
     if (i === currentIdx) div.classList.add('current');
-    div.innerHTML = `<span class="node-icon">${ms.icon}</span><span class="node-label">${ms.label}</span>`;
+    div.innerHTML = '<span class="node-icon">' + ms.icon + '</span><span class="node-label">' + ms.label + '</span>';
     nodesEl.appendChild(div);
-  });
+  }
 
-  // Progress bar width & boat position
-  const progressEl = $('#timeline-progress');
-  const boatEl = $('#timeline-boat');
+  var progressEl = $('#timeline-progress');
+  var boatEl = $('#timeline-boat');
   if (!progressEl || !boatEl) return;
 
-  const totalNodes = CONFIG.milestones.length - 1; // last is 上岸
-  const progressPct = Math.min(100, Math.max(0, (currentIdx / totalNodes) * 100));
-  setTimeout(() => {
-    progressEl.style.width = `${progressPct}%`;
-    boatEl.style.left = `${progressPct}%`;
+  var total = CONFIG.milestones.length - 1;
+  var pct = Math.min(100, Math.max(0, (currentIdx / total) * 100));
+  setTimeout(function() {
+    progressEl.style.width = pct + '%';
+    boatEl.style.left = pct + '%';
   }, 300);
 })();
 
-// ── Energy Stars ───────────────────────────────────────────────
-(function initStars() {
-  const starField = $('#star-field');
+// ═══════════════════════════════════════════════════════════════
+//  Daily Check-In  (localStorage)
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var STORAGE_KEY = 'shore-checkin';
+  var PRAISES = [
+    '又坚持了一天！🌊',
+    '今天的努力，会在岸上开花。✨',
+    '行测和申论都在为你让路！',
+    '你比昨天更接近目标了。',
+    '上岸的又一块垫脚石，踩稳了。',
+    '每一天的坚持，都在改写结局。',
+    '很棒！我们又多了一分胜算。',
+    '就是这样的节奏，保持住！',
+  ];
+
+  function dateStr(daysAgo) {
+    var d = new Date();
+    d.setHours(0, 0, 0, 0);
+    var offset = daysAgo || 0;
+    d.setDate(d.getDate() - offset);
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+
+  function loadData() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { dates: [] };
+      var parsed = JSON.parse(raw);
+      return parsed && Array.isArray(parsed.dates) ? parsed : { dates: [] };
+    } catch (e) { return { dates: [] }; }
+  }
+
+  function saveData(data) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  var btn = document.getElementById('checkin-btn');
+  var ripple = document.getElementById('checkin-ripple');
+  var feedbackEl = document.getElementById('checkin-feedback');
+  var streakEl = document.getElementById('checkin-streak');
+  var heatmap = document.getElementById('heatmap');
+
+  if (!btn || !heatmap) {
+    console.log('Check-in elements not found: btn=' + !!btn + ' heatmap=' + !!heatmap);
+    return;
+  }
+
+  function refreshUI() {
+    var data = loadData();
+    var dates = Array.isArray(data.dates) ? data.dates : [];
+    var set = {};
+    for (var i = 0; i < dates.length; i++) { set[dates[i]] = true; }
+    var today = dateStr(0);
+    var already = !!set[today];
+
+    // streak
+    var streak = 0;
+    for (var d = 0; d < 366; d++) {
+      if (set[dateStr(d)]) streak++;
+      else break;
+    }
+
+    // button state
+    var icon = btn.querySelector('.checkin-icon');
+    var label = btn.querySelector('.checkin-label');
+    if (already) {
+      btn.classList.add('checked');
+      if (icon) icon.textContent = '✅';
+      if (label) label.textContent = '已打卡';
+    } else {
+      btn.classList.remove('checked');
+      if (icon) icon.textContent = '📝';
+      if (label) label.textContent = '点我打卡';
+    }
+
+    if (streakEl) streakEl.innerHTML = '已连续学习 <strong>' + streak + '</strong> 天';
+
+    // heatmap
+    heatmap.innerHTML = '';
+    for (var i = 20; i >= 0; i--) {
+      var ds = dateStr(i);
+      var cell = document.createElement('span');
+      cell.className = 'heatmap-cell';
+      if (set[ds]) {
+        cell.classList.add('level-3');
+      } else if (ds === today && !already) {
+        cell.classList.add('today-empty');
+      }
+      cell.title = ds;
+      heatmap.appendChild(cell);
+    }
+  }
+
+  function doCheckIn() {
+    var data = loadData();
+    var dates = Array.isArray(data.dates) ? data.dates : [];
+    var today = dateStr(0);
+
+    // Already checked in?
+    for (var i = 0; i < dates.length; i++) {
+      if (dates[i] === today) return;
+    }
+
+    dates.unshift(today);
+    if (dates.length > 366) dates.pop();
+    data.dates = dates;
+    saveData(data);
+
+    if (ripple) {
+      ripple.classList.remove('active');
+      void ripple.offsetWidth;
+      ripple.classList.add('active');
+    }
+
+    var praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+    if (feedbackEl) feedbackEl.textContent = praise;
+
+    refreshUI();
+  }
+
+  btn.addEventListener('click', doCheckIn);
+
+  // Also handle touchend for mobile
+  btn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    doCheckIn();
+  });
+
+  refreshUI();
+  console.log('Check-in module initialized');
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  Energy Stars
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var starField = $('#star-field');
   if (!starField) return;
 
-  const TOTAL = 8;
-  let collected = 0;
-  $('#star-total').textContent = TOTAL;
+  var TOTAL = 8;
+  var collected = 0;
+  var stEl = $('#star-total');
+  if (stEl) stEl.textContent = String(TOTAL);
 
-  // Delay star creation until layout is complete
+  function spawnParticle(e) {
+    var p = document.createElement('span');
+    p.className = 'star-particle';
+    p.textContent = '✨';
+    p.style.left = e.clientX + 'px';
+    p.style.top = e.clientY + 'px';
+    var bottle = $('#bottle');
+    if (bottle) {
+      var br = bottle.getBoundingClientRect();
+      p.style.setProperty('--dx', (br.left + br.width / 2 - e.clientX) + 'px');
+      p.style.setProperty('--dy', (br.top + br.height / 2 - e.clientY) + 'px');
+    } else {
+      p.style.setProperty('--dx', '0px');
+      p.style.setProperty('--dy', '-60px');
+    }
+    document.body.appendChild(p);
+    p.addEventListener('animationend', function() { p.remove(); });
+  }
+
   function buildStars() {
-    const fw = starField.offsetWidth;
-    const fh = starField.offsetHeight;
-    if (fw === 0 || fh === 0) {
-      // Layout not ready yet — retry
-      requestAnimationFrame(buildStars);
-      return;
-    }
+    var fw = starField.offsetWidth;
+    var fh = starField.offsetHeight;
+    if (fw === 0 || fh === 0) { requestAnimationFrame(buildStars); return; }
 
-    const padding = 10;
-    const usedPositions = [];
+    var used = [];
+    var pad = 10;
 
-    function getRandomPos() {
-      for (let attempt = 0; attempt < 50; attempt++) {
-        const x = padding + Math.random() * (fw - 2 * padding);
-        const y = padding + Math.random() * (fh - 2 * padding);
-        const tooClose = usedPositions.some(p =>
-          Math.hypot(p.x - x, p.y - y) < 50
-        );
-        if (!tooClose) {
-          usedPositions.push({ x, y });
-          return { x, y };
+    function randPos() {
+      for (var a = 0; a < 50; a++) {
+        var x = pad + Math.random() * (fw - 2 * pad);
+        var y = pad + Math.random() * (fh - 2 * pad);
+        var tooClose = false;
+        for (var j = 0; j < used.length; j++) {
+          if (Math.hypot(used[j].x - x, used[j].y - y) < 50) { tooClose = true; break; }
         }
+        if (!tooClose) { used.push({ x: x, y: y }); return { x: x, y: y }; }
       }
-      return { x: padding + Math.random() * (fw - 2 * padding), y: padding + Math.random() * (fh - 2 * padding) };
+      var rx = pad + Math.random() * (fw - 2 * pad);
+      var ry = pad + Math.random() * (fh - 2 * pad);
+      used.push({ x: rx, y: ry });
+      return { x: rx, y: ry };
     }
 
-    for (let i = 0; i < TOTAL; i++) {
-      const { x, y } = getRandomPos();
-      const star = document.createElement('span');
-      star.className = 'star';
-      star.textContent = '⭐';
-      star.style.left = `${x}px`;
-      star.style.top = `${y}px`;
-      star.style.animationDelay = `${Math.random() * 2}s`;
-      star.dataset.index = i;
+    for (var i = 0; i < TOTAL; i++) {
+      var pos = randPos();
+      var s = document.createElement('span');
+      s.className = 'star';
+      s.textContent = '⭐';
+      s.style.left = pos.x + 'px';
+      s.style.top = pos.y + 'px';
+      s.style.animationDelay = (Math.random() * 2).toFixed(3) + 's';
 
-      star.addEventListener('click', (e) => {
-        if (star.classList.contains('collected')) return;
-        star.classList.add('collected');
-        collected++;
-        $('#star-count').textContent = collected;
-        spawnParticle(e);
+      (function(starEl) {
+        starEl.addEventListener('click', function(e) {
+          if (starEl.classList.contains('collected')) return;
+          starEl.classList.add('collected');
+          collected++;
+          var scEl = $('#star-count');
+          if (scEl) scEl.textContent = String(collected);
+          spawnParticle(e);
 
-        const fillPct = collected / TOTAL;
-        const maxFillH = 40;
-        const fillH = fillPct * maxFillH;
-        const fillY = 60 + (maxFillH - fillH);
-        const fillRect = $('#bottle-fill');
-        if (fillRect) {
-          fillRect.setAttribute('y', String(fillY));
-          fillRect.setAttribute('height', String(fillH));
-        }
+          var pct = collected / TOTAL;
+          var maxH = 40;
+          var fillH = pct * maxH;
+          var fillY = 60 + (maxH - fillH);
+          var fr = $('#bottle-fill');
+          if (fr) { fr.setAttribute('y', String(fillY)); fr.setAttribute('height', String(fillH)); }
 
-        if (collected >= TOTAL) {
-          setTimeout(() => {
-            const hiddenMsg = $('#hidden-message');
-            const hiddenText = $('#hidden-text');
-            if (hiddenMsg && hiddenText) {
-              hiddenText.textContent = CONFIG.allStarsMessage;
-              hiddenMsg.classList.add('revealed');
-            }
-          }, 400);
-        }
-      });
+          if (collected >= TOTAL) {
+            setTimeout(function() {
+              var hm = $('#hidden-message');
+              var ht = $('#hidden-text');
+              if (hm && ht) { ht.textContent = CONFIG.allStarsMessage; hm.classList.add('revealed'); }
+            }, 400);
+          }
+        });
+      })(s);
 
-      // Touch support
-      star.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        star.dispatchEvent(new Event('click'));
-      });
-
-      starField.appendChild(star);
+      starField.appendChild(s);
     }
   }
 
   requestAnimationFrame(buildStars);
-
-  function spawnParticle(e) {
-    const particle = document.createElement('span');
-    particle.className = 'star-particle';
-    particle.textContent = '✨';
-    particle.style.left = `${e.clientX}px`;
-    particle.style.top = `${e.clientY}px`;
-
-    const bottle = $('#bottle');
-    if (bottle) {
-      const bRect = bottle.getBoundingClientRect();
-      const dx = bRect.left + bRect.width / 2 - e.clientX;
-      const dy = bRect.top + bRect.height / 2 - e.clientY;
-      particle.style.setProperty('--dx', `${dx}px`);
-      particle.style.setProperty('--dy', `${dy}px`);
-    } else {
-      particle.style.setProperty('--dx', '0px');
-      particle.style.setProperty('--dy', '-60px');
-    }
-
-    document.body.appendChild(particle);
-    particle.addEventListener('animationend', () => particle.remove());
-  }
 })();
 
-// ── Mailbox ────────────────────────────────────────────────────
-(function initMailbox() {
-  const envelope = $('#envelope');
-  const letterCard = $('#letter-card');
-  const letterText = $('#letter-text');
-  const letterClose = $('#letter-close');
-
+// ═══════════════════════════════════════════════════════════════
+//  Mailbox
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var envelope = $('#envelope');
+  var letterCard = $('#letter-card');
+  var letterText = $('#letter-text');
+  var letterClose = $('#letter-close');
   if (!envelope || !letterCard || !letterText) return;
 
-  envelope.addEventListener('click', () => {
+  envelope.addEventListener('click', function() {
     if (letterCard.classList.contains('open')) return;
-    const idx = Math.floor(Math.random() * CONFIG.messages.length);
-    letterText.textContent = CONFIG.messages[idx];
+    letterText.textContent = CONFIG.messages[Math.floor(Math.random() * CONFIG.messages.length)];
     letterCard.classList.add('open');
   });
 
   if (letterClose) {
-    letterClose.addEventListener('click', () => {
-      letterCard.classList.remove('open');
-    });
+    letterClose.addEventListener('click', function() { letterCard.classList.remove('open'); });
   }
 
-  // Also allow keyboard activation
-  envelope.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      envelope.click();
-    }
+  envelope.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); envelope.click(); }
   });
 })();
 
-// ── Breathing Exercise ─────────────────────────────────────────
-(function initBreathing() {
-  const btn = $('#breath-btn');
-  const circle = $('#breath-circle');
-  const text = $('#breath-text');
+// ═══════════════════════════════════════════════════════════════
+//  Breathing Exercise
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var btn = $('#breath-btn');
+  var circle = $('#breath-circle');
+  var text = $('#breath-text');
   if (!btn || !circle || !text) return;
 
-  let running = false;
-  let timer = null;
-
-  const phases = [
-    { label: '吸气…', duration: 4000, cls: 'breathing-in' },
-    { label: '屏住', duration: 4000, cls: 'breathing-hold' },
-    { label: '慢慢呼出…', duration: 6000, cls: 'breathing-out' },
+  var running = false;
+  var timer = null;
+  var phases = [
+    { label: '吸气…', dur: 4000, cls: 'breathing-in' },
+    { label: '屏住', dur: 4000, cls: 'breathing-hold' },
+    { label: '慢慢呼出…', dur: 6000, cls: 'breathing-out' },
   ];
 
-  function runCycle(phaseIdx) {
+  function runCycle(idx) {
     if (!running) return;
-    if (phaseIdx >= phases.length) {
-      // One cycle complete
+    if (idx >= phases.length) {
       text.textContent = '再来一次';
       circle.className = 'breath-circle';
-      timer = setTimeout(() => runCycle(0), 1200);
+      timer = setTimeout(function() { runCycle(0); }, 1200);
       return;
     }
-    const phase = phases[phaseIdx];
-    text.textContent = phase.label;
-    circle.className = `breath-circle ${phase.cls}`;
-    timer = setTimeout(() => runCycle(phaseIdx + 1), phase.duration);
+    var p = phases[idx];
+    text.textContent = p.label;
+    circle.className = 'breath-circle ' + p.cls;
+    timer = setTimeout(function() { runCycle(idx + 1); }, p.dur);
   }
 
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', function() {
     if (running) {
-      // Stop
       running = false;
       clearTimeout(timer);
       btn.textContent = '开始呼吸';
@@ -404,7 +499,6 @@ const $$ = (sel) => document.querySelectorAll(sel);
       circle.className = 'breath-circle';
       return;
     }
-    // Start
     running = true;
     btn.textContent = '停止';
     btn.classList.add('running');
@@ -412,35 +506,95 @@ const $$ = (sel) => document.querySelectorAll(sel);
   });
 })();
 
-// ── Scroll-triggered animations ─────────────────────────────────
-(function initScrollReveal() {
-  const sections = document.querySelectorAll('section');
+// ═══════════════════════════════════════════════════════════════
+//  Scroll Reveal
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var sections = document.querySelectorAll('section');
   if (!sections.length) return;
-
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        // Re-trigger child animations inside visible sections
-        entry.target.querySelectorAll('.section-title, .section-label').forEach((el) => {
+  var observer = new IntersectionObserver(function(entries) {
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].isIntersecting) {
+        entries[i].target.querySelectorAll('.section-title, .section-label').forEach(function(el) {
           el.classList.add('animate-in');
         });
       }
     }
   }, { threshold: 0.15 });
-
-  sections.forEach((s) => observer.observe(s));
+  for (var i = 0; i < sections.length; i++) { observer.observe(sections[i]); }
 })();
 
-// ── Performance: debounced resize handler ───────────────────────
-{
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      // Recalculate star positions would be here if needed
-    }, 200);
-  });
-}
+// Debounced resize
+(function() {
+  var t;
+  window.addEventListener('resize', function() { clearTimeout(t); t = setTimeout(function() {}, 200); });
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  Theme auto-switch based on local time
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  function applyTheme() {
+    var hour = new Date().getHours();
+    var cls = document.documentElement.classList;
+    cls.remove('theme-dawn', 'theme-noon');
+    if (hour >= 6 && hour < 12) cls.add('theme-dawn');
+    else if (hour >= 12 && hour < 18) cls.add('theme-noon');
+    // else: default deep-night theme (no class needed)
+  }
+  applyTheme();
+  // Re-check every 30 minutes
+  setInterval(applyTheme, 1800000);
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  Parallax stars on scroll
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var canvas = $('#stars-canvas');
+  if (!canvas) return;
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        var y = window.pageYOffset;
+        canvas.style.transform = 'translateY(' + (y * 0.06) + 'px)';
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  Countdown digit bounce on change
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var lastSecs = '';
+  setInterval(function() {
+    var el = $('#cd-secs');
+    if (!el) return;
+    var cur = el.textContent;
+    if (cur !== lastSecs && lastSecs !== '') {
+      el.style.transform = 'scale(1.15)';
+      setTimeout(function() { el.style.transform = 'scale(1)'; }, 150);
+    }
+    lastSecs = cur;
+  }, 1000);
+})();
+
+// ═══════════════════════════════════════════════════════════════
+//  Enhanced scrollbar (webkit)
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var style = document.createElement('style');
+  style.textContent =
+    '::-webkit-scrollbar { width: 4px; }' +
+    '::-webkit-scrollbar-track { background: transparent; }' +
+    '::-webkit-scrollbar-thumb { background: rgba(142,172,205,0.25); border-radius: 2px; }' +
+    '::-webkit-scrollbar-thumb:hover { background: rgba(240,192,96,0.4); }';
+  document.head.appendChild(style);
+})();
 
 console.log('🌊 上岸 — 为美丽的张晓彤而建');
 console.log('灯塔已经亮起，岸就在前方。');

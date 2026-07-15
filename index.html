@@ -32,6 +32,13 @@
       <p class="hero-desc">灯塔一直亮着，光的方向就是你要去的地方</p>
     </div>
 
+    <!-- Sea waves -->
+    <div class="sea-waves" aria-hidden="true">
+      <div class="sea-wave w1"></div>
+      <div class="sea-wave w2"></div>
+      <div class="sea-wave w3"></div>
+    </div>
+
     <!-- Scroll hint -->
     <div class="scroll-hint" aria-hidden="true">
       <span></span>
@@ -93,6 +100,35 @@
         </div>
       </div>
       <div class="timeline-nodes" id="timeline-nodes"></div>
+    </div>
+  </section>
+
+  <!-- ====== Section 4.5: Daily Check-in ====== -->
+  <section id="checkin">
+    <div class="section-label">每日打卡</div>
+    <h2 class="section-title">今天你学习了吗？</h2>
+    <p class="checkin-streak" id="checkin-streak">已连续学习 <strong>0</strong> 天</p>
+
+    <div class="checkin-circle-container">
+      <button class="checkin-circle" id="checkin-btn" aria-label="今日打卡">
+        <span class="checkin-icon">📝</span>
+        <span class="checkin-label">点我打卡</span>
+      </button>
+      <div class="checkin-ripple" id="checkin-ripple"></div>
+    </div>
+
+    <p class="checkin-feedback" id="checkin-feedback"></p>
+
+    <div class="heatmap-container">
+      <p class="heatmap-title">最近 21 天</p>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heatmap-legend">
+        <span>更早</span>
+        <span class="legend-cell empty"></span>
+        <span class="legend-cell light"></span>
+        <span class="legend-cell full"></span>
+        <span>今天</span>
+      </div>
     </div>
   </section>
 
