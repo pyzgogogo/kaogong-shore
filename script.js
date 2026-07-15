@@ -281,6 +281,18 @@ function $(sel) { return document.querySelector(sel); }
 
     if (streakEl) streakEl.innerHTML = '已连续学习 <strong>' + streak + '</strong> 天';
 
+    // long-streak motivational message
+    var msgEl = document.getElementById('checkin-streak-msg');
+    if (msgEl) {
+      if (streak >= 100) msgEl.textContent = '🔥 百天坚持，你已经是岸上的人了！';
+      else if (streak >= 50) msgEl.textContent = '💪 五十天了，你比想象中更强大！';
+      else if (streak >= 30) msgEl.textContent = '⭐ 整整一个月！这种毅力，上岸是必然的。';
+      else if (streak >= 21) msgEl.textContent = '🌱 21天养成一个好习惯，你已经做到了！';
+      else if (streak >= 14) msgEl.textContent = '🌊 两周了！每天都在离岸边更近一步。';
+      else if (streak >= 7) msgEl.textContent = '✨ 坚持一周了，很棒！继续保持这个节奏。';
+      else msgEl.textContent = '';
+    }
+
     // heatmap
     heatmap.innerHTML = '';
     for (var i = 20; i >= 0; i--) {

@@ -517,6 +517,16 @@ body {
   font-weight: 700;
 }
 
+.checkin-streak-msg {
+  font-size: 0.85rem;
+  color: var(--gold-soft);
+  margin-top: -1rem;
+  margin-bottom: 1.2rem;
+  min-height: 1.3em;
+  font-style: italic;
+  opacity: 0.85;
+}
+
 /* Main check-in button */
 .checkin-circle-container {
   position: relative;
