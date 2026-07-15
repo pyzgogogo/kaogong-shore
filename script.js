@@ -434,6 +434,57 @@ function $(sel) { return document.querySelector(sel); }
 })();
 
 // ═══════════════════════════════════════════════════════════════
+//  Photo Corner
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  var PHOTO_COUNT = 8;
+  var scrollEl = document.getElementById('photo-scroll');
+  if (!scrollEl) return;
+
+  for (var i = 1; i <= PHOTO_COUNT; i++) {
+    var card = document.createElement('div');
+    card.className = 'photo-card';
+    var num = String(i).padStart(2, '0');
+    var img = document.createElement('img');
+    img.src = 'photos/' + num + '.jpg';
+    img.alt = '回忆 ' + i;
+    img.loading = 'lazy';
+    card.appendChild(img);
+
+    // Click to open lightbox
+    (function(src) {
+      card.addEventListener('click', function() {
+        var lb = document.getElementById('lightbox');
+        var lbImg = document.getElementById('lightbox-img');
+        if (lb && lbImg) {
+          lbImg.src = src;
+          lb.classList.add('open');
+        }
+      });
+    })(img.src);
+
+    scrollEl.appendChild(card);
+  }
+
+  // Close lightbox
+  var lb = document.getElementById('lightbox');
+  var lbClose = document.getElementById('lightbox-close');
+  var lbBg = lb ? lb.querySelector('.lightbox-bg') : null;
+
+  if (lbClose) {
+    lbClose.addEventListener('click', function() { lb.classList.remove('open'); });
+  }
+  if (lbBg) {
+    lbBg.addEventListener('click', function() { lb.classList.remove('open'); });
+  }
+  if (lb) {
+    lb.addEventListener('click', function(e) {
+      if (e.target === lb) lb.classList.remove('open');
+    });
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════
 //  Mailbox
 // ═══════════════════════════════════════════════════════════════
 (function() {
